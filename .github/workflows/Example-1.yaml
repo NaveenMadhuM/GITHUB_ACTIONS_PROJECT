@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: checkout Repo
-              uses: action/checkout@v4
+              uses: actions/checkout@v4
             - name: welcome Message
               run: echo "welcome to My Github Action tutorial"
             - name: list files
