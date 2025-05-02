@@ -1,0 +1,56 @@
+name: Setup Java, Jenkins, and Docker on Runner
+
+on:
+ push:
+  branches: [main]
+jobs:
+ code_checkout:
+  runs-on: self-hosted
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Update APT packages 
+       runs-on: self-hosted
+       needs: code_checkout
+      run: |
+        sudo apt-get update
+        sudo apt-get upgrade -y
+
+    - name: Install Java (OpenJDK 17)
+     runs-on: self-hosted
+       needs: Update APT packages
+      run: |
+        sudo apt-get update
+        sudo apt install -y openjdk-17-jdk
+        java -version
+
+    - name: Install Docker
+    runs-on: self-hosted
+       needs: Install Java (OpenJDK 17)
+      run: |
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sudo sh get-docker.sh
+        sudo usermod -aG docker $USER
+        docker --version
+
+    - name: Install Jenkins
+    runs-on: self-hosted
+       needs:  Install Docker
+      run: |
+        curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
+          /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+        echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+          https://pkg.jenkins.io/debian binary/ | sudo tee \
+          /etc/apt/sources.list.d/jenkins.list > /dev/null
+        sudo apt-get update
+        sudo apt-get install -y jenkins
+        sudo systemctl enable jenkins
+        sudo systemctl start jenkins
+        sudo systemctl status jenkins
+
+    - name: Print Jenkins initial admin password
+     runs-on: self-hosted
+       needs:  Install Jenkins
+      run: |
+        sudo cat /var/lib/jenkins/secrets/initialAdminPassword
