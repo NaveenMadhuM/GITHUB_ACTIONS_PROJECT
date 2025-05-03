@@ -1,0 +1,7 @@
+name: basic workflow dispatch
+on:
+  workflow_dispatch:
+jobs:
+  runs-on: ubuntu-latest
+  steps:
+    -run: echo " wellcome to this class"
